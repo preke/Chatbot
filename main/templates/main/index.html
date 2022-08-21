@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>Dialogggg</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/botui/build/botui.min.css" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/botui/build/botui-theme-default.css" />
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.5.3/css/bootstrap.css" rel="stylesheet">
+    <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.5.3/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+{% block body %}
+<div class="container" style="background-color: #f7f8f8">
+    <div class="jumbotron"  style="background-color: #f7f8f8">
+        <h1 align="center" > Chatbot Demo</h1>
+    </div>
+    <div class="row">
+        <div class="col-md-2"></div>
+        <div class="col-md-8">
+            <div id="chatbox" style="height: 800px">
+                <bot-ui style="background-color: aliceblue;"></bot-ui>
+            </div>
+        </div>
+        <div class="col-md-2"></div>
+    </div>
+    <div class="jumbotron"  style="background-color: #f7f8f8">
+        <br>
+        <br>
+    </div>
+</div>
+
+</body>
+{% endblock body %}
+
+{% load static %}
+<script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
+<script src="http://malsup.github.io/jquery.form.js"></script>
+<script src="https://cdn.jsdelivr.net/vue/latest/vue.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/botui/build/botui.js"></script>
+{% block javascript %}
+<script>
+    var botui = new BotUI('chatbox');
+    var content = document.getElementsByTagName('chatbox');
+    var user_input = 'Hello to you, my friend!';
+
+    var global_personality = ''
+
+    function chatting (res) {
+        botui.action.text({ // show 'text' action
+                action: {
+                    placeholder: 'Enter here'
+                }
+        }).then(function (res) { // get the result
+            if(res.value != 'exit') {
+                $(this).ajaxSubmit({
+                  type: 'post',
+                  dataType: "json",
+                  url: "{% url 'auto_response' %}",
+                  data:{
+                      'post': res.value + '___' +global_personality
+                  },
+                  success: function(data) {
+                      botui.message.add({
+                        content: data['user_emo']
+                      }).then(function(){
+                        botui.message.add({
+                          content: data['response_emo']
+                        }).then(function(){
+                            botui.message.add({
+                              content: data['response']
+                            }).then(chatting())
+                          })
+                      });
+                    }
+                })
+            } else {
+                botui.message.add({
+                    content: 'Bye bye!'
+                });
+            }
+        });
+    }
+
+    botui.message.add({
+        content: 'Hello to you my friend!'
+    }).then(function () {
+        botui.message.add({
+            content: 'What personality do you want me to have?'
+        }).then(function () {
+            return botui.action.button({
+                action:[{value: "Naive and Innocent", text: "Naive and Innocent"},
+                        {value: "Confident",          text: "Confident"},
+                        {value: "Competitive",        text: "Competitive"},
+                        {value: "Humorous",           text: "Humorous"},
+                        {value: "Social",             text: "Social"}]
+            })
+        }).then(function (res) {
+            global_personality = res.value;
+            chatting();
+        })
+    })
+
+
+
+
+</script>
+{% endblock javascript %}
+</html>
+
+
+
+
+
