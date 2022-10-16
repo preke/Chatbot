@@ -1,3 +1,6 @@
+   
+
+
 <!DOCTYPE html>
 <html>
 <head>
@@ -89,11 +92,11 @@
             content: 'What personality do you want me to have?'
         }).then(function () {
             return botui.action.button({
-                action:[{value: "Naive and Innocent", text: "Naive and Innocent"},
-                        {value: "Confident",          text: "Confident"},
-                        {value: "Competitive",        text: "Competitive"},
-                        {value: "Humorous",           text: "Humorous"},
-                        {value: "Social",             text: "Social"}]
+                action:[{value: "Sympathetic",   text: "Sympathetic"},  
+                        {value: "Organized",     text: "Organized"},    
+                        {value: "Extroverted",   text: "Extroverted"},  
+                        {value: "Insightful",    text: "Insightful"},   
+                        {value: "Sensitive",     text: "Sensitive"}]
             })
         }).then(function (res) {
             global_personality = res.value;
