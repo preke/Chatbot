@@ -10,32 +10,36 @@ import json
 import requests
 import numpy as np
 import re
-from transformers import Trainer, TrainingArguments
-from transformers import T5Tokenizer, T5ForConditionalGeneration#, Trainer, TrainingArguments
+import random
 
-import pdb
+# online usage
+# from transformers import Trainer, TrainingArguments
+# from transformers import T5Tokenizer, T5ForConditionalGeneration#, Trainer, TrainingArguments
+#
+# import pdb
+#
+# from transformers import BertTokenizer, BertConfig, BertForSequenceClassification
+# from transformers import AdamW, get_linear_schedule_with_warmup
+# from transformers import AutoTokenizer, AutoModelForSequenceClassification
+# import torch
 
-from transformers import BertTokenizer, BertConfig, BertForSequenceClassification
-from transformers import AdamW, get_linear_schedule_with_warmup
-from transformers import AutoTokenizer, AutoModelForSequenceClassification
-import torch
-
-np.random.seed(0)
-
-
-OUTPUT_MAX_LEN=70
-OUTPUT_MIN_LEN=1
-INPUT_MAX_LENGTH = 128
-
-
-MODEL_PATH_DICT={}
-MODEL_PATH_DICT['model_name']='t5_base_PELD'
-MODEL_PATH_DICT['model_path']="/home/disk1/data/shuaiqi/emo_response_gen/model/t5_base/PELD/checkpoint-3906"
-
-
-emo_cls_tokenizer = AutoTokenizer.from_pretrained("/home/zhiyuan/aaai'23/src/bert_emotion_classification/")  #bert_emotion_classification
-emo_cls_model = AutoModelForSequenceClassification.from_pretrained("/home/zhiyuan/aaai'23/src/bert_emotion_classification/", num_labels=6)   #"bert_emotion_classification"
-emotion_mapping = {4: "sadness", 2: "joy", 1: "fear", 0: "anger", 5: "surprise", 3: "love"}
+# np.random.seed(0)
+#
+#
+# OUTPUT_MAX_LEN=70
+# OUTPUT_MIN_LEN=1
+# INPUT_MAX_LENGTH = 128
+#
+#
+# MODEL_PATH_DICT={}
+# MODEL_PATH_DICT['model_name']='t5_base_PELD'
+# MODEL_PATH_DICT['model_path']="/home/disk1/data/shuaiqi/emo_response_gen/model/t5_base/PELD/checkpoint-3906"
+#
+#
+# emo_cls_tokenizer = AutoTokenizer.from_pretrained("/home/zhiyuan/aaai'23/src/bert_emotion_classification/")  #bert_emotion_classification
+# emo_cls_model = AutoModelForSequenceClassification.from_pretrained("/home/zhiyuan/aaai'23/src/bert_emotion_classification/", num_labels=6)   #"bert_emotion_classification"
+# emotion_mapping = {4: "sadness", 2: "joy", 1: "fear", 0: "anger", 5: "surprise", 3: "love"}
+emotion_mapping = {4: "sad", 2: "happy", 1: "fearful", 0: "angry", 5: "surprised", 3: "disgusted", 6: 'neutral'}
 
 
 
@@ -66,34 +70,47 @@ def auto_response(request):
 
     personality = person_dict[_personality]
 
-    user_emo = emotionInferenceBERT(uttr)
-    response_emo = emotionGenerationBERT(user_emo, uttr, personality)
+    # user_emo = emotionInferenceBERT(uttr)
+    # response_emo = emotionGenerationBERT(user_emo, uttr, personality)
 
     # response generation
-    generator_dict={}
+    # generator_dict={}
 
     # only finetuned on PELD
     # generator_dict['model_name']='t5_base_DailyDialog_PELD' 
     # generator_dict['model_path']="/home/disk1/data/guest01/emo_response_gen/model/t5_base/PELD/checkpoint-3906"
     # only finetuned on DailyDialog
-    generator_dict['model_name']='t5_base_DailyDialog'
-    generator_dict['model_path']="/home/disk1/data/guest01/emo_response_gen/model/t5_base/DailyDialog/checkpoint-47500"
+    # generator_dict['model_name']='t5_base_DailyDialog'
+    # generator_dict['model_path']="/home/disk1/data/guest01/emo_response_gen/model/t5_base/DailyDialog/checkpoint-47500"
     # finetuned on DailyDialog and PELD
     # generator_dict['model_name']='t5_base_DailyDialog_PELD'
     # generator_dict['model_path']="/home/disk1/data/guest01/emo_response_gen/model/t5_base/DailyDialog_PELD/checkpoint-2604"
 
-    emo_generator = emotional_response_gen(generator_dict, device = "cuda:1" )
+    # emo_generator = emotional_response_gen(generator_dict, device = "cuda:1" )
 
-    response_text = emo_generator.response_generate(uttr, 
-                                                    emotion = response_emo, 
-                                                    personality = _personality, 
-                                                    output_max_len = OUTPUT_MAX_LEN, 
-                                                    output_min_len = OUTPUT_MIN_LEN, 
-                                                    input_max_length = INPUT_MAX_LENGTH)
+    # response_text = emo_generator.response_generate(uttr,
+    #                                                 emotion = response_emo,
+    #                                                 personality = _personality,
+    #                                                 output_max_len = OUTPUT_MAX_LEN,
+    #                                                 output_min_len = OUTPUT_MIN_LEN,
+    #                                                 input_max_length = INPUT_MAX_LENGTH)
+
+
+    user_emo = emotion_mapping[random.randint(0, 6)]
+    o = random.randint(1, 100)
+    c = random.randint(1, 100)
+    e = random.randint(1, 100)
+    a = random.randint(1, 100)
+    n = random.randint(1, 100)
+
+    user_personality = [o,c,e,a,n]
+    response_emo = 'test'
+    response_text = '123'
 
     res_list = {
-        'user_emo': 'It seems your current emotion is ' + user_emo + '.',
+        'user_emo': user_emo,
         'response': response_text,
+        'user_personality': user_personality,
         'response_emo': 'So, I response you with in ' + response_emo+ ':',
     }
 

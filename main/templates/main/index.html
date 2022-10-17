@@ -11,25 +11,58 @@
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/botui/build/botui-theme-default.css" />
     <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.5.3/css/bootstrap.css" rel="stylesheet">
     <link href="https://cdn.bootcdn.net/ajax/libs/twitter-bootstrap/4.5.3/css/bootstrap.min.css" rel="stylesheet">
+    {% load static %}
+    <script src="{% static 'echarts.js' %}"></script>
+    <script src="https://kit.fontawesome.com/a3d039cc94.js" crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="{% static 'css/fontawesome-free-5.13.0-web/css/fontawesome.min.css' %}">
+    <link rel="stylesheet" href="{% static 'css/fontawesome-free-5.13.0-web/css/brands.css' %}">
+    <link rel="stylesheet" href="{% static 'css/fontawesome-free-5.13.0-web/css/solid.css' %}">
+
+<style type="text/css">
+
+.aligncenter {
+    clear: both;
+    display: block;
+    margin: auto;
+}
+</style>
+
 </head>
 <body>
 {% block body %}
-<div class="container" style="background-color: #f7f8f8">
+<div class="container" style="width: 2000px">
     <div class="jumbotron"  style="background-color: #f7f8f8">
         <h1 align="center" > Chatbot Demo</h1>
     </div>
     <div class="row">
-        <div class="col-md-2"></div>
+        <div class="col-md-0" style="background-color: red"></div>
         <div class="col-md-8">
             <div id="chatbox" style="height: 800px">
                 <bot-ui style="background-color: aliceblue;"></bot-ui>
             </div>
         </div>
-        <div class="col-md-2"></div>
+        <div class="col-md-4" style=""; id="user">
+            <p style="font-weight:bold">Personality of User:</p>
+            <div id="user_personality"; style="height: 400px;">
+
+            </div>
+            <div id="user_emotion"; style="height: 400px; background-color: white">
+                <p style="font-weight:bold">Current User Emotion is:</p>
+                <!--<i class="fa-solid fa-face-grin-wide"></i>-->
+
+                {% load static %}
+                <img src="{% static 'emo_pics/happy.png' %}" style="width:300px; display: none;" class="aligncenter"; id="happy">
+                <img src="{% static 'emo_pics/angry.png' %}" style="width:300px; display: none;" class="aligncenter"; id="angry">
+                <img src="{% static 'emo_pics/sad.png' %}" style="width:300px; display: none;" class="aligncenter"; id="sad">
+                <img src="{% static 'emo_pics/surprised.png' %}" style="width:300px; display: none;" class="aligncenter"; id="surprised">
+                <img src="{% static 'emo_pics/neutral.png' %}" style="width:300px; display: none;" class="aligncenter"; id="neutral">
+                <img src="{% static 'emo_pics/fearful.png' %}" style="width:300px; display: none;" class="aligncenter"; id="fearful">
+                <img src="{% static 'emo_pics/disgusted.png' %}" style="width:300px; display: none;" class="aligncenter"; id="disgusted">
+            </div>
+        </div>
     </div>
     <div class="jumbotron"  style="background-color: #f7f8f8">
-        <br>
-        <br>
+
     </div>
 </div>
 
@@ -47,7 +80,12 @@
     var content = document.getElementsByTagName('chatbox');
     var user_input = 'Hello to you, my friend!';
 
-    var global_personality = ''
+    var global_personality = '';
+    var user_personality = [];
+    var current_user_emo = "";
+    var chartDom = document.getElementById('user_personality');
+    var myChart = echarts.init(chartDom);
+    set_personality();
 
     function chatting (res) {
         botui.action.text({ // show 'text' action
@@ -65,16 +103,17 @@
                   },
                   success: function(data) {
                       botui.message.add({
-                        content: data['user_emo']
-                      }).then(function(){
-                        botui.message.add({
-                          content: data['response_emo']
-                        }).then(function(){
-                            botui.message.add({
-                              content: data['response']
-                            }).then(chatting())
-                          })
-                      });
+                        content: data['response']
+                      }).then(chatting());
+                      user_personality = data['user_personality']
+                      set_personality();
+                      user_emo = data["user_emo"];
+                      if (current_user_emo != "") {
+                        $('#'+current_user_emo).attr('style', 'width:300px; display: none;');
+                      }
+                      $('#'+user_emo).attr('style', 'width:300px; display: inline;');
+                      current_user_emo = user_emo;
+
                     }
                 })
             } else {
@@ -104,6 +143,37 @@
         })
     })
 
+
+    function set_personality() {
+        var personality_option;
+        personality_option = {
+          radar: {
+            // shape: 'circle',
+            indicator: [
+              { name: 'OPN', max: 100 },
+                { name: 'CON', max: 100 },
+                { name: 'EXT', max: 100 },
+                { name: 'AGR', max: 100 },
+                { name: 'NEU', max: 100 }
+            ]
+          },
+          series: [
+            {
+              name: 'personality',
+              type: 'radar',
+              data: [
+                {
+                  value: user_personality,
+                  name: 'personality'
+                }
+
+              ]
+            }
+          ]
+        };
+
+        personality_option && myChart.setOption(personality_option);
+    }
 
 
 
