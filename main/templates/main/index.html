@@ -62,7 +62,7 @@
             <div id="user_intent"; style="height: 200px; background-color: white">
                 <p style="font-weight:bold">Current User Intent is:</p>
                 <!--<i class="fa-solid fa-face-grin-wide"></i>-->
-                <p align="center">Request for Information</p>
+                <h4 align="center"; id='intent' ></h4>
             </div>
         </div>
     </div>
@@ -84,7 +84,7 @@
     var botui = new BotUI('chatbox');
     var content = document.getElementsByTagName('chatbox');
     var user_input = 'Hello to you, my friend!';
-
+    var user_intent = 'Free Chatting'
     var global_personality = '';
     var user_personality = [];
     var current_user_emo = "";
@@ -110,14 +110,19 @@
                       botui.message.add({
                         content: data['response']
                       }).then(chatting());
+                      
                       user_personality = data['user_personality']
                       set_personality();
+                      
                       user_emo = data["user_emo"];
                       if (current_user_emo != "") {
                         $('#'+current_user_emo).attr('style', 'width:300px; display: none;');
                       }
                       $('#'+user_emo).attr('style', 'width:300px; display: inline;');
                       current_user_emo = user_emo;
+
+                      user_intent = data["user_intent"];
+                      $('#intent').text(user_intent);
 
                     }
                 })
