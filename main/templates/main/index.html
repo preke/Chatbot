@@ -141,15 +141,43 @@
             content: 'What personality do you want me to have?'
         }).then(function () {
             return botui.action.button({
-                action:[{value: "Sympathetic",   text: "Sympathetic"},  
-                        {value: "Organized",     text: "Organized"},    
+                action:[{value: "Agreeable",   text: "Agreeable"},  
+                        {value: "Conscientious",     text: "Conscientious"},    
                         {value: "Extroverted",   text: "Extroverted"},  
-                        {value: "Insightful",    text: "Insightful"},   
-                        {value: "Sensitive",     text: "Sensitive"}]
+                        {value: "Open",    text: "Open"},   
+                        {value: "Neurotic",     text: "Neurotic"}]
             })
         }).then(function (res) {
             global_personality = res.value;
-            chatting();
+            if (res.value == "Agreeable") {
+                botui.message.add({
+                    content: 'I will respond positively, offer comfort, and try to find common ground in conversations.'
+                }).then(chatting());
+            }
+
+            if (res.value == "Extroverted") {
+                botui.message.add({
+                    content: 'I will use lively and energetic language, make jokes, and encourage you to open up and share information.'
+                }).then(chatting());
+            }
+
+            if (res.value == "Conscientious") {
+                botui.message.add({
+                    content: 'I will respond in a responsible and reliable manner, try to offer you well-thought-out advice and solutions.'
+                }).then(chatting());
+            }
+
+            if (res.value == "Open") {
+                botui.message.add({
+                    content: 'I will be curious and eager to learn, responding with a desire for knowledge and exploration.'
+                }).then(chatting());
+            }
+
+            if (res.value == "Neurotic") {
+                botui.message.add({
+                    content: 'I will be respond with worry or anxiety, expressing concerns in my responses.'
+                }).then(chatting());
+            }
         })
     })
 

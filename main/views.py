@@ -11,7 +11,7 @@ import random
 
 # online usage
 from transformers import Trainer, TrainingArguments
-from transformers import T5Tokenizer, T5ForConditionalGeneration#, Trainer, TrainingArguments
+from transformers import T5Tokenizer, T5ForConditionalGeneration
 
 # import pdb
 #
@@ -151,9 +151,10 @@ def auto_response(request):
     except:
         pass
     
+    print(context)
     context_ = ' '.join(context)
 
-
+    
     inputs = response_gen_tokenizer([context_], return_tensors="pt")
     reply_ids = response_gen_model.generate(**inputs)
     response_text = response_gen_tokenizer.batch_decode(reply_ids, skip_special_tokens=True)[0]
@@ -229,12 +230,18 @@ def emotionGenerationBERT(user_emo, user_post, personality):
 
 
 person_dict = {
-    "Sympathetic"  : "A",
-    "Organized"    : "C",
-    "Extroverted"  : "E",
-    "Insightful"   : "O",
-    "Sensitive"    : "N"
+    "Agreeable"    : "A",
+    "Conscientious" : "C",
+    "Extroverted" : "E",
+    "Open"    : "O",
+    "Neurotic" : "N"
 }
+
+
+
+
+
+
 
 emo_dict = {
     0: 'joy',
