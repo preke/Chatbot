@@ -225,11 +225,12 @@ def auto_response(request):
     user_intent = get_intent(uttr)
 
     personality = person_dict[_personality]
-    response_emo = emotionGenerationBERT(user_emo, uttr, personality)
+    response_emo = '' # emotionGenerationBERT(user_emo, uttr, personality)
 
     inputs = response_gen_tokenizer([context_], return_tensors="pt")
     reply_ids = response_gen_model.generate(**inputs)
     response_text = response_gen_tokenizer.batch_decode(reply_ids, skip_special_tokens=True)[0]
+
 
     res_list = {
         'user_emo': emotion_mapping_2[user_emo],
@@ -238,6 +239,8 @@ def auto_response(request):
         'user_intent': user_intent,
         'response_emo': 'So'  # , I response you with in ' + response_emo + ':',
     }
+
+    res = json.dumps(res_list)
 
     with open(file_name, 'a') as f:
         f.write(uttr + '\t' + response_text + '\t' + str(request.session['rate']) + '\n')
