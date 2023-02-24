@@ -18,14 +18,22 @@
     <link rel="stylesheet" href="{% static 'css/fontawesome-free-5.13.0-web/css/brands.css' %}">
     <link rel="stylesheet" href="{% static 'css/fontawesome-free-5.13.0-web/css/solid.css' %}">
 
-<style type="text/css">
 
+
+
+
+
+{% block custom_style %}
+<style type="text/css">
 .aligncenter {
     clear: both;
     display: block;
     margin: auto;
 }
 </style>
+
+{% endblock %}
+
 
 </head>
 <body>
@@ -90,6 +98,7 @@
     var current_user_emo = "";
     var chartDom = document.getElementById('user_personality');
     var myChart = echarts.init(chartDom);
+    var user_rate = 0;
     set_personality();
 
     function chatting (res) {
@@ -104,13 +113,16 @@
                   dataType: "json",
                   url: "{% url 'auto_response' %}",
                   data:{
-                      'post': res.value + '___' +global_personality
+                      'post': res.value + '_' + global_personality + '_' + user_rate
                   },
                   success: function(data) {
+
                       botui.message.add({
                         content: data['response']
-                      }).then(chatting());
-                      
+                      }).then(
+                          continue_
+                      );
+
                       user_personality = data['user_personality']
                       set_personality();
                       
@@ -132,6 +144,11 @@
                 });
             }
         });
+    }
+
+    function continue_ () {
+        rating();
+
     }
 
     botui.message.add({
@@ -182,6 +199,25 @@
     })
 
 
+    function rating() {
+        botui.message.add({
+            content: 'How well do you think I reflect my personality?',
+        }).then(function() {
+            return botui.action.button({
+                action: [
+                    { text: '⭐️', value: 1 },
+                    { text: '⭐️⭐️', value: 2 },
+                    { text: '⭐️⭐️⭐️', value: 3 },
+                    { text: '⭐️⭐️⭐️⭐️', value: 4 },
+                    { text: '⭐️⭐️⭐️⭐️⭐️', value: 5 },
+                ]
+            });
+        }).then(function(res) {
+            user_rate = res.value;
+            chatting();
+        });
+    }
+
     function set_personality() {
         var personality_option;
         personality_option = {
@@ -212,6 +248,7 @@
 
         personality_option && myChart.setOption(personality_option);
     }
+
 
 
 
